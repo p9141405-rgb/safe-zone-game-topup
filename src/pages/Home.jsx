@@ -3,12 +3,12 @@ import { useData } from '../context/DataContext';
 import { themeColors } from '../App';
 
 const Home = () => {
-  const { theme, avatarImg, user, userLogout, isDarkMode, toggleDarkMode, notifications, markAllNotificationsRead, balance, points, redeemCoupon, bannerActive, bannerText, bannerType } = useData();
+  const { theme, avatarImg, user, userLogout, isDarkMode, toggleDarkMode, notifications, markAllNotificationsRead, balance, points, redeemCoupon, bannerActive, bannerText, bannerType, games } = useData();
   const [showNoti, setShowNoti] = useState(false);
   const [showModal, setShowModal] = useState(null);
   const [couponInput, setCouponInput] = useState('');
   const [toast, setToast] = useState({ show: false, msg: '', type: 'success' });
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // Logout Confirm State
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const showToast = (msg, type = 'success') => {
     setToast({ show: true, msg, type });
@@ -22,13 +22,6 @@ const Home = () => {
     { id: 'stats', emoji: '📊', title: 'My Stats', sub: 'View', color: 'text-blue-400' },
     { id: 'coupon', emoji: '🎟️', title: 'Coupon', sub: 'Redeem', color: 'text-orange-400' },
     { id: 'leaderboard', emoji: '🏆', title: 'Leaderboard', sub: 'Top 10', color: 'text-yellow-400' },
-  ];
-
-  const games = [
-    { id: 1, name: 'Mobile Legends', emoji: '⚔️' },
-    { id: 2, name: 'PUBG Mobile', emoji: '🔫' },
-    { id: 3, name: 'Magic Chess', emoji: '♟️' },
-    { id: 4, name: 'App Premium', emoji: '👑' },
   ];
 
   const handleRedeem = () => {
@@ -70,8 +63,6 @@ const Home = () => {
             )}
           </button>
           <button onClick={toggleDarkMode} className="p-2.5 rounded-full bg-[#1e293b]/80 border border-slate-700 text-lg">{isDarkMode ? '🌙' : '☀️'}</button>
-          
-          {/* Logout Button with Confirm Prompt */}
           <button onClick={() => setShowLogoutConfirm(true)} className="p-2.5 rounded-full bg-red-500/15 border border-red-500/30 text-lg active:scale-95">🚪</button>
 
           {showNoti && (
@@ -102,19 +93,16 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Announcement Banner (Scrolling Text with 📢 Emoji) */}
+      {/* Announcement Banner */}
       {bannerActive && bannerText && (
         <div className={`rounded-xl py-2 px-3 mb-4 overflow-hidden flex items-center border ${
           bannerType === 'Warning' ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400' :
           bannerType === 'Success' ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400' :
           'bg-blue-500/20 border-blue-500/30 text-blue-400'
         }`}>
-          {/* Added 📢 Emoji here */}
           <span className="text-lg mr-2">📢</span>
           <div className="flex-1 overflow-hidden relative">
-            <div className="animate-marquee text-xs font-bold">
-              {bannerText}
-            </div>
+            <div className="animate-marquee text-xs font-bold">{bannerText}</div>
           </div>
         </div>
       )}
@@ -144,12 +132,17 @@ const Home = () => {
         ))}
       </div>
 
+      {/* Games Section - Dynamic from DataContext */}
       <h3 className="font-bold text-sm text-slate-300 mb-4 flex items-center gap-2"><span>🎮</span> ဂိမ်းများ</h3>
       <div className="grid grid-cols-2 gap-3 pb-10">
         {games.map((game) => (
-          <div key={game.id} className="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center h-32 hover:bg-slate-800 transition-colors cursor-pointer relative overflow-hidden group">
-            <span className="text-4xl mb-3 group-hover:scale-110 transition-transform">{game.emoji}</span>
-            <p className="text-xs font-semibold text-slate-200 text-center">{game.name}</p>
+          <div key={game.id} className="bg-[#1e293b]/80 border border-slate-800 rounded-2xl overflow-hidden hover:bg-slate-800 transition-colors cursor-pointer relative group">
+            <div className="h-28 bg-slate-800 flex items-center justify-center overflow-hidden">
+              <img src={game.img} alt={game.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" onError={(e) => { e.target.onerror = null; e.target.src='https://via.placeholder.com/150'; }} />
+            </div>
+            <div className="p-3 text-center">
+              <p className="text-xs font-semibold text-slate-200">{game.name}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -250,4 +243,3 @@ const Home = () => {
   );
 };
 export default Home;
-// test auto deploy
