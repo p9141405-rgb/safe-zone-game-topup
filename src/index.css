@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+body {
+  background-color: #0b1120;
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar { width: 0px; background: transparent; }
+
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); opacity: 0.5; }
+  50% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+  100% { transform: translateY(0px) translateX(0px); opacity: 0.5; }
+}
+@keyframes float-delayed {
+  0% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+  50% { transform: translateY(20px) translateX(-10px); opacity: 0.6; }
+  100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+}
+.animate-float { animation: float 8s ease-in-out infinite; }
+.animate-float-delayed { animation: float-delayed 10s ease-in-out infinite; }
+
+/* ================= ANNOUNCEMENT BANNER MARQUEE ================= */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+  padding-left: 100%;
+}
+
+/* ================= LIGHT MODE OVERRIDES ================= */
+body.light-mode {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+body.light-mode [class*="bg-[#0b1120]"] { background-color: #f1f5f9 !important; }
+body.light-mode [class*="bg-[#1e293b]"] { background-color: #ffffff !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+body.light-mode [class*="bg-[#0f172a]"] { background-color: #f8fafc !important; }
+body.light-mode [class*="border-slate-800"], 
+body.light-mode [class*="border-slate-700"] { border-color: #e2e8f0 !important; }
+body.light-mode [class*="text-slate-200"] { color: #1e293b !important; }
+body.light-mode [class*="text-slate-300"] { color: #334155 !important; }
+body.light-mode [class*="text-slate-400"] { color: #475569 !important; }
+body.light-mode [class*="text-slate-500"] { color: #64748b !important; }
+body.light-mode [class*="text-white"]:not([class*="from-"]):not([class*="bg-blue"]):not([class*="bg-purple"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-orange"]):not([class*="bg-pink"]):not([class*="bg-gradient"]) {
+  color: #0f172a !important;
+}
