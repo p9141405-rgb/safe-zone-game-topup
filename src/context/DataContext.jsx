@@ -3,7 +3,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-  // Registered Users List (Local Storage မှာ သိမ်းမည်)
   const [registeredUsers, setRegisteredUsers] = useState(() => {
     const saved = localStorage.getItem('safeZoneRegisteredUsers');
     return saved ? JSON.parse(saved) : [];
@@ -117,13 +116,15 @@ export const DataProvider = ({ children }) => {
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
   const markAllNotificationsRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })));
 
-  // User Auth (LocalStorage)
+  const addNotification = (title, message) => {
+    setNotifications(prev => [{ id: Date.now(), title, message, time: 'Just now', read: false }, ...prev]);
+  };
+
   const userLogin = (username, password) => {
     if (!username || !password) return { success: false, message: 'Username နှင့် Password ထည့်ပါ။' };
-    
     const foundUser = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
     if (foundUser && foundUser.password === password) {
-      setUser({ username: foundUser.username, phone: foundUser.phone, role: 'user', name: foundUser.username });
+      setUser({ username: foundUser.username, phone: foundUser.phone, role: 'user', name: foundUser.name || foundUser.username, avatar: foundUser.avatar });
       return { success: true };
     }
     return { success: false, message: 'Username သို့မဟုတ် Password မှားနေပါသည်။' };
@@ -131,13 +132,9 @@ export const DataProvider = ({ children }) => {
 
   const register = (username, phone, password) => {
     if (!username || !phone || !password) return { success: false, message: 'အချက်အလက်များ ပြည့်စုံစွာ ထည့်ပါ။' };
-    
     const exists = registeredUsers.some(u => u.username.toLowerCase() === username.toLowerCase());
-    if (exists) {
-      return { success: false, message: 'ဒီ Username ကို အသုံးပြုပြီးသား ဖြစ်နေပါတယ်။' };
-    }
-    
-    const newUser = { username, phone, password };
+    if (exists) return { success: false, message: 'ဒီ Username ကို အသုံးပြုပြီးသား ဖြစ်နေပါတယ်။' };
+    const newUser = { username, phone, password, name: username, avatar: '' };
     setRegisteredUsers([...registeredUsers, newUser]);
     setUser({ username, phone, role: 'user', name: username });
     return { success: true };
@@ -153,6 +150,15 @@ export const DataProvider = ({ children }) => {
     return { success: false, message: 'Admin Username သို့မဟုတ် Password မှားနေပါသည်။' };
   };
   const adminLogout = () => setAdmin(null);
+
+  const updateUserProfile = (username, newName, newPhone, newAvatar) => {
+    setRegisteredUsers(prev => prev.map(u => 
+      u.username === username ? { ...u, name: newName, phone: newPhone, avatar: newAvatar } : u
+    ));
+    if (user && user.username === username) {
+      setUser(prev => ({ ...prev, name: newName, phone: newPhone, avatar: newAvatar }));
+    }
+  };
 
   const addGame = (newGame) => setGames([...games, { ...newGame, id: Date.now() }]);
   const deleteGame = (id) => setGames(games.filter(game => game.id !== id));
@@ -217,9 +223,9 @@ export const DataProvider = ({ children }) => {
 
   return (
     <DataContext.Provider value={{ 
-      user, userLogin, register, userLogout,
+      user, userLogin, register, userLogout, updateUserProfile,
       admin, adminLogin, adminLogout,
-      isDarkMode, toggleDarkMode, notifications, markAllNotificationsRead,
+      isDarkMode, toggleDarkMode, notifications, markAllNotificationsRead, addNotification,
       balance, points, deposits, games, addGame, deleteGame, orders, setOrders, 
       musicList, addMusic, removeMusic,
       theme, setTheme, profileBg, setProfileBg, avatarImg, setAvatarImg,
@@ -228,7 +234,8 @@ export const DataProvider = ({ children }) => {
       updateDepositStatus, updateOrderStatus, redeemCoupon, convertPoints, 
       siteInfo, updateSiteInfo, maintenanceMode, setMaintenanceMode,
       autoBackup, setAutoBackup, bannerActive, setBannerActive, 
-      bannerText, setBannerText, bannerType, setBannerType, botStatus, setBotStatus
+      bannerText, setBannerText, bannerType, setBannerType, botStatus, setBotStatus,
+      registeredUsers
     }}>
       {children}
     </DataContext.Provider>

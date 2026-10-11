@@ -17,7 +17,8 @@ const Admin = () => {
     deposits, updateDepositStatus, orders, updateOrderStatus,
     siteInfo, updateSiteInfo, maintenanceMode, setMaintenanceMode,
     adminLogout, autoBackup, setAutoBackup, bannerActive, setBannerActive, 
-    bannerText, setBannerText, bannerType, setBannerType, botStatus, setBotStatus
+    bannerText, setBannerText, bannerType, setBannerType, botStatus, setBotStatus,
+    registeredUsers, updateUserProfile
   } = useData();
   
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -30,14 +31,27 @@ const Admin = () => {
   const [gameImg, setGameImg] = useState('');
   const [ruleKeywords, setRuleKeywords] = useState('');
   const [ruleReply, setRuleReply] = useState('');
+  
   const [siteForm, setSiteForm] = useState(siteInfo);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [bannerImage, setBannerImage] = useState(''); // Banners Image State
+  const [logoUrl, setLogoUrl] = useState(siteInfo.logoUrl || '');
+  const [videoUrl, setVideoUrl] = useState(siteInfo.videoUrl || '');
+  const [musicUrl, setMusicUrl] = useState(siteInfo.musicUrl || '');
+  
+  const [payName, setPayName] = useState('');
+  const [payShort, setPayShort] = useState('');
+  const [payClass, setPayClass] = useState('');
 
-  const mockUsers = [
-    { id: 'USR-001', name: 'Pyae Phyo', phone: '09779958327', balance: '0 Ks', points: 0, status: 'Active', joined: '2026-10-01' },
-    { id: 'USR-002', name: 'Aung Aung', phone: '09791234567', balance: '5,000 Ks', points: 150, status: 'Active', joined: '2026-10-05' },
-  ];
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [bannerImage, setBannerImage] = useState('');
+  
+  const [editingUser, setEditingUser] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editAvatar, setEditAvatar] = useState('');
+
+  const handleLogoUpload = (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onloadend = () => { setLogoUrl(reader.result); showToast('Logo ပုံ ရွေးပြီးပါပြီ!'); }; reader.readAsDataURL(file); } };
+  const handleVideoUpload = (e) => { const file = e.target.files[0]; if (file) { setVideoUrl(URL.createObjectURL(file)); showToast('Video ဖိုင် ရွေးပြီးပါပြီ!'); } };
+  const handleMusicUrlUpload = (e) => { const file = e.target.files[0]; if (file) { setMusicUrl(URL.createObjectURL(file)); showToast('Music ဖိုင် ရွေးပြီးပါပြီ!'); } };
 
   const topActions = [
     { id: 'users', name: 'Users', emoji: '👥' },
@@ -62,32 +76,16 @@ const Admin = () => {
   const handleTopAction = (id) => setActiveTab(id);
   const confirmLogout = () => { adminLogout(); setShowLogoutConfirm(false); };
 
-  const handleSaveGame = () => {
-    if (gameName && gameImg) { addGame({ name: gameName, img: gameImg }); setGameName(''); setGameImg(''); showToast('ဂိမ်း အသစ် ထည့်ပြီးပါပြီ!'); }
-    else showToast('ဂိမ်းနာမည်နဲ့ ပုံ URL ထည့်ပါ။', 'error');
-  };
-
+  const handleSaveGame = () => { if (gameName && gameImg) { addGame({ name: gameName, img: gameImg }); setGameName(''); setGameImg(''); showToast('ဂိမ်း အသစ် ထည့်ပြီးပါပြီ!'); } else showToast('ဂိမ်းနာမည်နဲ့ ပုံ URL ထည့်ပါ။', 'error'); };
   const handleGallery = () => { setGameImg('https://play-lh.googleusercontent.com/1_X7lXjD0m9l9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9z9'); showToast('Gallery မှ ပုံရွေးပြီးပါပြီ!'); };
-
-  const handleAddRule = () => {
-    if (ruleKeywords && ruleReply) { addChatRule(ruleKeywords, ruleReply); setRuleKeywords(''); setRuleReply(''); showToast('စည်းမျဉ်း အသစ် ထည့်ပြီးပါပြီ!'); }
-    else showToast('Keywords နဲ့ Reply ထည့်ပါ။', 'error');
-  };
-
-  const handleMusicUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (musicList.length + files.length > 5) return showToast('သီချင်း ၅ ပုဒ်ထက် မပိုရပါ။', 'error');
-    const valid = files.filter(f => f.size <= 10 * 1024 * 1024);
-    if (valid.length !== files.length) showToast('10MB ထက် မကျော်ရပါ။', 'warning');
-    valid.forEach(f => addMusic(f));
-    if (valid.length > 0) showToast('သီချင်း ထည့်ပြီးပါပြီ။');
-  };
-
+  const handleAddRule = () => { if (ruleKeywords && ruleReply) { addChatRule(ruleKeywords, ruleReply); setRuleKeywords(''); setRuleReply(''); showToast('စည်းမျဉ်း အသစ် ထည့်ပြီးပါပြီ!'); } else showToast('Keywords နဲ့ Reply ထည့်ပါ။', 'error'); };
+  const handleMusicUpload = (e) => { const files = Array.from(e.target.files); if (musicList.length + files.length > 5) return showToast('သီချင်း ၅ ပုဒ်ထက် မပိုရပါ။', 'error'); const valid = files.filter(f => f.size <= 10 * 1024 * 1024); if (valid.length !== files.length) showToast('10MB ထက် မကျော်ရပါ။', 'warning'); valid.forEach(f => addMusic(f)); if (valid.length > 0) showToast('သီချင်း ထည့်ပြီးပါပြီ။'); };
   const handleBotTest = () => { if (botActive) showToast('Bot က Auto Reply ပြန်နေပါပြီ ✅'); else showToast('Bot ကို အရင် ဖွင့်ပါ။', 'error'); };
-  const handleSaveSiteInfo = () => { updateSiteInfo(siteForm); showToast('Site Info သိမ်းပြီးပါပြီ!'); };
+  
+  const handleSaveSiteInfo = () => { const newInfo = { ...siteForm, logoUrl, videoUrl, musicUrl }; updateSiteInfo(newInfo); showToast('Site Info သိမ်းပြီးပါပြီ!'); };
   const handleSaveLabels = () => showToast('Text Labels သိမ်းပြီးပါပြီ!');
   const handleSaveSocial = () => showToast('Social Links သိမ်းပြီးပါပြီ!');
-  const handleAddPayment = () => showToast('Payment Method ထည့်ပြီးပါပြီ!');
+  const handleAddPayment = () => { if (payName && payShort && payClass) { showToast('Payment Method ထည့်ပြီးပါပြီ!'); setPayName(''); setPayShort(''); setPayClass(''); } else showToast('အချက်အလက်များ ပြည့်စုံစွာ ထည့်ပါ။', 'error'); };
   const handleAddBadge = () => showToast('Trust Badge ထည့်ပြီးပါပြီ!');
   const handleAddFaq = () => showToast('FAQ ထည့်ပြီးပါပြီ!');
   const handleAddCoupon = () => showToast('Coupon ထည့်ပြီးပါပြီ!');
@@ -95,11 +93,32 @@ const Admin = () => {
   const handleSaveSettings = () => showToast('Settings သိမ်းပြီးပါပြီ!');
   const handleGithubBackup = () => showToast('GitHub Backup လုပ်ပြီးပါပြီ! (Simulated)');
   const handleGithubRestore = () => showToast('Restore လုပ်ပြီးပါပြီ! (Simulated)');
-  const handleSaveBanners = () => {
-    if (bannerImage) showToast('Banner ပုံ URL သိမ်းပြီးပါပြီ!');
-    else showToast('Banner URL ထည့်ပါ။', 'error');
-  };
+  const handleSaveBanners = () => showToast('Banners သိမ်းပြီးပါပြီ!');
   const handleBotDebug = () => { setBotStatus('Debug Ok'); showToast('Bot Debug စစ်ဆေးပြီးပါပြီ (Simulated)'); };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user.username);
+    setEditName(user.name || user.username);
+    setEditPhone(user.phone);
+    setEditAvatar(user.avatar || '');
+  };
+
+  const handleSaveUserEdit = () => {
+    if (editingUser) {
+      updateUserProfile(editingUser, editName, editPhone, editAvatar);
+      showToast('User အချက်အလက် သိမ်းပြီးပါပြီ!');
+      setEditingUser(null);
+    }
+  };
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setEditAvatar(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -237,21 +256,23 @@ const Admin = () => {
       case 'users':
         return (
           <div className="bg-[#1e293b]/50 border border-slate-700 rounded-2xl p-4">
-            <h3 className="text-blue-400 font-bold flex items-center gap-2 mb-4"><span>👥</span> အသုံးပြုသူများ ({mockUsers.length})</h3>
+            <h3 className="text-blue-400 font-bold flex items-center gap-2 mb-4"><span>👥</span> အသုံးပြုသူများ ({registeredUsers.length})</h3>
             <div className="flex flex-col gap-3">
-              {mockUsers.map((user) => (
-                <div key={user.id} className="bg-[#0f172a] border border-slate-700 rounded-xl p-4">
+              {registeredUsers.length === 0 ? (
+                <div className="text-center text-slate-500 text-xs py-8">User မရှိသေးပါ</div>
+              ) : registeredUsers.map((user) => (
+                <div key={user.username} className="bg-[#0f172a] border border-slate-700 rounded-xl p-4">
                   <div className="flex justify-between items-center mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white">{user.name.charAt(0)}</div>
-                      <div><p className="text-sm font-bold text-white">{user.name}</p><p className="text-[10px] text-slate-400">{user.phone}</p></div>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white overflow-hidden">
+                        {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{user.name || user.username}</p>
+                        <p className="text-[10px] text-slate-400">{user.phone}</p>
+                      </div>
                     </div>
-                    <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${user.status === 'Active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>{user.status}</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs text-slate-400 mt-3 pt-3 border-t border-slate-800">
-                    <div><span className="text-slate-500">လက်ကျန်:</span> <span className="text-green-400 font-bold">{user.balance}</span></div>
-                    <div><span className="text-slate-500">Points:</span> <span className="text-yellow-400 font-bold">{user.points}</span></div>
-                    <div><span className="text-slate-500">ပါဝင်ချိန်:</span> {user.joined}</div>
+                    <button onClick={() => handleEditUser(user)} className="bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95">✏️ Edit</button>
                   </div>
                 </div>
               ))}
@@ -366,12 +387,25 @@ const Admin = () => {
               <div className="flex flex-col gap-3">
                 <InputField placeholder="Site Name" defaultValue={siteInfo.siteName} onChange={(e) => setSiteForm({...siteForm, siteName: e.target.value})} />
                 <div className="flex gap-2 items-center">
-                  <div className="flex-1"><InputField placeholder="Logo URL" defaultValue="https://safe-zone-topup.pages.dev/logo.png" /></div>
-                  <button onClick={() => showToast('Logo Upload လုပ်ပြီးပါပြီ')} className="bg-blue-500 px-4 h-[46px] rounded-xl text-white text-xs font-bold active:scale-95">📤 Upload</button>
-                  <button onClick={() => showToast('Logo ဖျက်ပြီးပါပြီ', 'warning')} className="bg-red-500 px-4 h-[46px] rounded-xl text-white text-xs font-bold active:scale-95">✖️</button>
+                  <div className="flex-1"><InputField placeholder="Logo URL" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} /></div>
+                  <input type="file" id="logoUpload" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                  <label htmlFor="logoUpload" className="bg-blue-500 px-4 h-[46px] rounded-xl text-white flex items-center justify-center text-xs font-bold cursor-pointer active:scale-95">📤 Upload</label>
+                  <button onClick={() => { setLogoUrl(''); showToast('Logo ဖျက်ပြီးပါပြီ', 'warning'); }} className="bg-red-500 px-4 h-[46px] rounded-xl text-white flex items-center justify-center text-xs font-bold active:scale-95">✖️</button>
                 </div>
                 <InputField placeholder="Hero Title" defaultValue={siteInfo.heroTitle} onChange={(e) => setSiteForm({...siteForm, heroTitle: e.target.value})} />
                 <InputField placeholder="Hero Subtitle" defaultValue={siteInfo.heroSubtitle} onChange={(e) => setSiteForm({...siteForm, heroSubtitle: e.target.value})} />
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1"><InputField placeholder="Video URL (mp4)" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} /></div>
+                  <input type="file" id="videoUpload" accept="video/*" className="hidden" onChange={handleVideoUpload} />
+                  <label htmlFor="videoUpload" className="bg-blue-500 px-4 h-[46px] rounded-xl text-white flex items-center justify-center text-xs font-bold cursor-pointer active:scale-95">🎬 Upload</label>
+                  <button onClick={() => { setVideoUrl(''); showToast('Video ဖျက်ပြီးပါပြီ', 'warning'); }} className="bg-red-500 px-4 h-[46px] rounded-xl text-white flex items-center justify-center text-xs font-bold active:scale-95">✖️</button>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1"><InputField placeholder="Music URL (mp3)" value={musicUrl} onChange={(e) => setMusicUrl(e.target.value)} /></div>
+                  <input type="file" id="musicUrlUpload" accept="audio/*" className="hidden" onChange={handleMusicUrlUpload} />
+                  <label htmlFor="musicUrlUpload" className="bg-blue-500 px-4 h-[46px] rounded-xl text-white flex items-center justify-center text-xs font-bold cursor-pointer active:scale-95">🎵 Upload</label>
+                  <button onClick={() => { setMusicUrl(''); showToast('Music ဖျက်ပြီးပါပြီ', 'warning'); }} className="bg-red-500 px-4 h-[46px] rounded-xl text-white flex items-center justify-center text-xs font-bold active:scale-95">✖️</button>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <InputField placeholder="Primary color" defaultValue={siteInfo.primaryColor} onChange={(e) => setSiteForm({...siteForm, primaryColor: e.target.value})} />
                   <InputField placeholder="Secondary color" defaultValue={siteInfo.secondaryColor} onChange={(e) => setSiteForm({...siteForm, secondaryColor: e.target.value})} />
@@ -394,11 +428,11 @@ const Admin = () => {
               <h3 className="text-blue-400 font-bold mb-4 flex items-center gap-2"><span>💳</span> Payment Methods</h3>
               <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <InputField placeholder="Name" defaultValue="KBZ Pay" />
-                  <InputField placeholder="Short" defaultValue="KBZ" />
+                  <InputField placeholder="Name" value={payName} onChange={(e) => setPayName(e.target.value)} />
+                  <InputField placeholder="Short" value={payShort} onChange={(e) => setPayShort(e.target.value)} />
                 </div>
                 <div className="flex gap-2">
-                  <div className="flex-1"><InputField placeholder="Class" defaultValue="kbz" /></div>
+                  <div className="flex-1"><InputField placeholder="Class" value={payClass} onChange={(e) => setPayClass(e.target.value)} /></div>
                   <button onClick={handleAddPayment} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 h-[46px] rounded-xl text-sm font-bold active:scale-95">➕ ထည့်</button>
                 </div>
               </div>
@@ -491,7 +525,6 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Banners - Fixed and Functional */}
             <div className="bg-[#1e293b]/50 border border-slate-700 rounded-2xl p-4">
               <h3 className="text-blue-400 font-bold mb-4 flex items-center gap-2"><span>🎨</span> Banners</h3>
               <div className="flex flex-col gap-3 mb-4">
@@ -633,6 +666,29 @@ const Admin = () => {
           {renderContent()}
         </div>
       </div>
+
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-[#1e293b] w-full max-w-sm rounded-3xl border border-slate-700 shadow-2xl p-6">
+            <h3 className="text-xl font-bold text-white mb-4">User အချက်အလက် ပြင်ရန်</h3>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-center">
+                <div className="w-20 h-20 rounded-full bg-[#0b1120] border-2 border-slate-700 flex items-center justify-center overflow-hidden">
+                  {editAvatar ? <img src={editAvatar} className="w-full h-full object-cover" /> : <span className="text-2xl">👤</span>}
+                </div>
+              </div>
+              <input type="file" id="avatarEdit" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+              <label htmlFor="avatarEdit" className="bg-slate-700 hover:bg-slate-600 text-white text-center px-4 py-2 rounded-lg text-xs font-medium cursor-pointer active:scale-95">Avatar ပုံ ရွေးရန်</label>
+              <InputField placeholder="Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
+              <InputField placeholder="Phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
+              <div className="flex gap-3 mt-2">
+                <button onClick={() => setEditingUser(null)} className="flex-1 bg-slate-700 text-white font-bold py-3 rounded-xl active:scale-95">Cancel</button>
+                <button onClick={handleSaveUserEdit} className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-3 rounded-xl active:scale-95">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">

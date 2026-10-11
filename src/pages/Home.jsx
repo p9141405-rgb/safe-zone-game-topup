@@ -30,14 +30,10 @@ const Home = () => {
     if (res.success) { setCouponInput(''); setShowModal(null); }
   };
 
-  const confirmLogout = () => {
-    userLogout();
-    setShowLogoutConfirm(false);
-  };
+  const confirmLogout = () => { userLogout(); setShowLogoutConfirm(false); };
 
   return (
     <div className="flex flex-col p-4 pt-6">
-      {/* Toast */}
       {toast.show && (
         <div className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] px-5 py-3 rounded-2xl shadow-2xl text-xs font-bold ${
           toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
@@ -47,7 +43,7 @@ const Home = () => {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${themeColors[theme].gradient} flex items-center justify-center font-bold text-lg shadow-lg ${themeColors[theme].shadow} overflow-hidden`}>
-            {avatarImg ? <img src={avatarImg} alt="avatar" className="w-full h-full object-cover" /> : (user?.name?.charAt(0)?.toUpperCase() || 'P')}
+            {user?.avatar ? <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" /> : (user?.name?.charAt(0)?.toUpperCase() || 'P')}
           </div>
           <div>
             <h2 className="font-semibold text-sm text-slate-200">{user?.name || 'Pyae phyo'}</h2>
@@ -93,7 +89,6 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Announcement Banner */}
       {bannerActive && bannerText && (
         <div className={`rounded-xl py-2 px-3 mb-4 overflow-hidden flex items-center border ${
           bannerType === 'Warning' ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400' :
@@ -132,7 +127,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Games Section - Dynamic from DataContext */}
       <h3 className="font-bold text-sm text-slate-300 mb-4 flex items-center gap-2"><span>🎮</span> ဂိမ်းများ</h3>
       <div className="grid grid-cols-2 gap-3 pb-10">
         {games.map((game) => (
@@ -147,7 +141,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Quick Action Modals */}
       {showModal && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[#1e293b] w-full max-w-sm rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
@@ -225,7 +218,6 @@ const Home = () => {
         </div>
       )}
 
-      {/* Custom User Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[#1e293b] w-full max-w-sm rounded-3xl border border-slate-700 shadow-2xl p-6 text-center">

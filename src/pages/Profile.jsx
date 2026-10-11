@@ -3,7 +3,7 @@ import { useData } from '../context/DataContext';
 import { themeColors } from '../App';
 
 const Profile = () => {
-  const { theme, setTheme, profileBg, setProfileBg, avatarImg, setAvatarImg, user, userLogout, convertPoints, points, balance } = useData();
+  const { theme, setTheme, profileBg, setProfileBg, avatarImg, setAvatarImg, user, userLogout, convertPoints, points, balance, addNotification } = useData();
   const [activeModal, setActiveModal] = useState(null);
   const [toggles, setToggles] = useState({ twoFactor: false, priceAlert: true, autoReorder: false });
   const [bgPreview, setBgPreview] = useState(profileBg);
@@ -37,10 +37,17 @@ const Profile = () => {
     if (res.success) setActiveModal(null);
   };
 
-  const confirmLogout = () => {
-    userLogout();
-    setShowLogoutConfirm(false);
+  const handleTestNotification = () => {
+    addNotification('Test Notification 🔔', 'ဒါက စမ်းသပ် အသိပေးချက် ဖြစ်ပါတယ်။ Home Screen မှာ ကြည့်ပါ။');
+    showToast('Notification ပို့ပြီးပါပြီ! Home Screen မှာ ကြည့်ပါ။');
   };
+
+  const handleInstallApp = () => {
+    addNotification('Install App 📲', 'Safe Zone App ကို Install လုပ်ပြီးပါပြီ!');
+    showToast('Install App လုပ်ပြီးပါပြီ!');
+  };
+
+  const confirmLogout = () => { userLogout(); setShowLogoutConfirm(false); };
 
   const menuItems = [
     { id: 'achievements', emoji: '🏅', name: 'Achievements' },
@@ -93,7 +100,6 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Points Convert Card */}
       <div className="bg-gradient-to-br from-fuchsia-500 to-pink-500 rounded-2xl p-5 mb-6 relative overflow-hidden shadow-lg text-white">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-2xl">⭐</span>
@@ -109,13 +115,11 @@ const Profile = () => {
         </button>
       </div>
 
-      {/* Test Notification & Install App Buttons */}
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <button onClick={() => showToast('Notification Test လုပ်ပါပြီ')} className="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-center gap-2 text-xs font-bold hover:bg-slate-800 active:scale-95"><span>🔔</span> Test Notification</button>
-        <button onClick={() => showToast('App Install လုပ်ပါပြီ')} className="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-center gap-2 text-xs font-bold hover:bg-slate-800 active:scale-95"><span>📲</span> Install App</button>
+        <button onClick={handleTestNotification} className="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-center gap-2 text-xs font-bold hover:bg-slate-800 active:scale-95"><span>🔔</span> Test Notification</button>
+        <button onClick={handleInstallApp} className="bg-[#1e293b]/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-center gap-2 text-xs font-bold hover:bg-slate-800 active:scale-95"><span>📲</span> Install App</button>
       </div>
 
-      {/* Logout Button with Confirm */}
       <button onClick={() => setShowLogoutConfirm(true)} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold py-4 rounded-2xl border border-red-500/20 mb-8 flex items-center justify-center gap-2 active:scale-95">
         <span>🚪</span> Logout
       </button>
@@ -130,7 +134,6 @@ const Profile = () => {
         ))}
       </div>
 
-      {/* Modals */}
       {activeModal && (
         <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[#1e293b] w-full max-w-sm rounded-3xl border border-slate-700 shadow-2xl overflow-hidden">
@@ -209,7 +212,6 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Custom User Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-[#1e293b] w-full max-w-sm rounded-3xl border border-slate-700 shadow-2xl p-6 text-center">
