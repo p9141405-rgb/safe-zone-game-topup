@@ -15,7 +15,8 @@ const Admin = () => {
     games, addGame, deleteGame, musicList, addMusic, removeMusic, 
     chatRules, addChatRule, deleteChatRule, botActive, toggleBot,
     deposits, updateDepositStatus, orders, updateOrderStatus,
-    siteInfo, updateSiteInfo, maintenanceMode, setMaintenanceMode,
+    siteInfo, updateSiteInfo, 
+    maintenanceMode, setMaintenanceMode, maintenanceMessage, setMaintenanceMessage,
     adminLogout, autoBackup, setAutoBackup, bannerActive, setBannerActive, 
     bannerText, setBannerText, bannerType, setBannerType, botStatus, setBotStatus,
     registeredUsers, updateUserProfile
@@ -89,7 +90,7 @@ const Admin = () => {
   const handleAddBadge = () => showToast('Trust Badge ထည့်ပြီးပါပြီ!');
   const handleAddFaq = () => showToast('FAQ ထည့်ပြီးပါပြီ!');
   const handleAddCoupon = () => showToast('Coupon ထည့်ပြီးပါပြီ!');
-  const handleSaveMaintenance = () => showToast(maintenanceMode ? 'Maintenance Mode ဖွင့်ထားပါသည်' : 'Website ပုံမှန် ပြန်ဖွင့်ပြီးပါပြီ');
+  const handleSaveMaintenance = () => showToast('Maintenance သတိပေးစာ သိမ်းပြီးပါပြီ!');
   const handleSaveSettings = () => showToast('Settings သိမ်းပြီးပါပြီ!');
   const handleGithubBackup = () => showToast('GitHub Backup လုပ်ပြီးပါပြီ! (Simulated)');
   const handleGithubRestore = () => showToast('Restore လုပ်ပြီးပါပြီ! (Simulated)');
@@ -496,6 +497,7 @@ const Admin = () => {
       case 'settings':
         return (
           <div className="flex flex-col gap-4">
+            {/* Maintenance Mode & Message Setup */}
             <div className={`bg-[#1e293b]/50 border rounded-2xl p-4 ${maintenanceMode ? 'border-red-500/50' : 'border-green-500/50'}`}>
               <h3 className="text-blue-400 font-bold mb-4 flex items-center gap-2"><span>🛠️</span> Maintenance Mode</h3>
               <div className="flex justify-between items-center bg-[#0f172a] p-4 rounded-xl border border-slate-700 mb-4">
@@ -507,7 +509,16 @@ const Admin = () => {
                   {maintenanceMode ? '🔴' : '🟢'}
                 </button>
               </div>
-              <InputField placeholder="Message" defaultValue="Website is under maintenance." />
+              
+              <div className="flex flex-col gap-3">
+                <label className="text-xs text-slate-400 font-medium">Maintenance Message (User မြင်ရမည့်စာ)</label>
+                <textarea 
+                  value={maintenanceMessage} 
+                  onChange={(e) => setMaintenanceMessage(e.target.value)}
+                  className="bg-[#0b1120] border border-slate-700 rounded-xl p-3 text-sm text-white h-20 resize-none focus:outline-none focus:border-blue-500"
+                  placeholder="Website is under maintenance..."
+                ></textarea>
+              </div>
               <button onClick={handleSaveMaintenance} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl text-sm font-bold w-full mt-4 active:scale-95">💾 Message Save</button>
             </div>
 

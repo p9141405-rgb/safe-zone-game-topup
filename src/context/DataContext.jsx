@@ -85,7 +85,11 @@ export const DataProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => localStorage.getItem('safeZoneTheme') || 'blue');
   const [profileBg, setProfileBg] = useState(() => localStorage.getItem('safeZoneBg') || '');
   const [avatarImg, setAvatarImg] = useState(() => localStorage.getItem('safeZoneAvatar') || '');
+  
+  // Maintenance Mode State
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState('Website is currently under maintenance. Please check back later.');
+
   const [autoBackup, setAutoBackup] = useState(false);
   const [bannerActive, setBannerActive] = useState(true);
   const [bannerText, setBannerText] = useState('Flash Sale 50% Off!');
@@ -111,7 +115,9 @@ export const DataProvider = ({ children }) => {
     localStorage.setItem('safeZoneBannerActive', JSON.stringify(bannerActive));
     localStorage.setItem('safeZoneBannerText', bannerText);
     localStorage.setItem('safeZoneBannerType', bannerType);
-  }, [registeredUsers, user, admin, isDarkMode, balance, points, deposits, games, orders, chatRules, siteInfo, botActive, theme, profileBg, avatarImg, bannerActive, bannerText, bannerType]);
+    localStorage.setItem('safeZoneMaintenanceMode', JSON.stringify(maintenanceMode));
+    localStorage.setItem('safeZoneMaintenanceMsg', maintenanceMessage);
+  }, [registeredUsers, user, admin, isDarkMode, balance, points, deposits, games, orders, chatRules, siteInfo, botActive, theme, profileBg, avatarImg, bannerActive, bannerText, bannerType, maintenanceMode, maintenanceMessage]);
 
   const toggleDarkMode = () => setIsDarkMode(prev => !prev);
   const markAllNotificationsRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -232,7 +238,9 @@ export const DataProvider = ({ children }) => {
       chatRules, addChatRule, deleteChatRule, chatMessages, sendMessage,
       botActive, toggleBot, isBotTyping, createOrder, createDeposit, 
       updateDepositStatus, updateOrderStatus, redeemCoupon, convertPoints, 
-      siteInfo, updateSiteInfo, maintenanceMode, setMaintenanceMode,
+      siteInfo, updateSiteInfo, 
+      maintenanceMode, setMaintenanceMode, 
+      maintenanceMessage, setMaintenanceMessage,
       autoBackup, setAutoBackup, bannerActive, setBannerActive, 
       bannerText, setBannerText, bannerType, setBannerType, botStatus, setBotStatus,
       registeredUsers
