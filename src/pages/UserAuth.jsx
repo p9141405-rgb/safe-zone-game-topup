@@ -17,6 +17,8 @@ const UserAuth = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // LocalStorage ဖြစ်လို့ ချက်ချင်း အလုပ်လုပ်ပါမယ်
     setTimeout(() => {
       if (isLogin) {
         const res = userLogin(username, password);
